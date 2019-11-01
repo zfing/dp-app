@@ -1,0 +1,79 @@
+import * as React from 'react'
+import { View } from 'react-native'
+import { Text } from '../text'
+import { ButtonProps } from './button.props'
+import { Touchable } from '../touchable'
+import { mergeAll, flatten } from 'ramda'
+import styled from 'styled-components/native'
+import { withTheme } from 'styled-components'
+import { color, spacing, platform } from '../../theme'
+
+const { px2dp } = platform
+
+const VIEW_SIZE = {
+  default: px2dp(44),
+  small: px2dp(33),
+  large: px2dp(55),
+}
+
+const TEXT_SIZE = {
+  default: px2dp(18),
+  small: px2dp(12),
+  large: px2dp(24),
+}
+
+const StyledTouchable = styled(Touchable)`
+  margin: 5px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ transparent, ouline, theme, preset, disabled }) => (transparent || ouline) ? 'transparent' : theme.colors[preset].base};
+  height: ${(props) => VIEW_SIZE[props.size]};
+  border: 1px solid ${({ ouline, theme, preset }) => ouline ? theme.colors[preset].base : 'transparent'};
+`
+
+const StyledText = styled(Text)`
+  color: ${({ transparent, ouline, theme, preset }) => (transparent || ouline) ? theme.colors[preset].base : theme.colors[preset].contrast};
+  font-size: ${(props) => TEXT_SIZE[props.size]};
+  font-weight: 600;
+`
+
+/**
+ * For your text displaying needs.
+ *
+ * This component is a HOC over the built-in React Native one.
+ */
+export const Button = withTheme((props: ButtonProps) => {
+  // grab the props
+  const {
+    preset = 'primary',
+    size = 'default',
+    transparent,
+    ouline,
+    disabled,
+    tx,
+    text,
+    textStyle,
+    style,
+    onPress,
+    onLongPress,
+    children,
+    ...rest
+  } = props
+
+  const styles = { size, preset: disabled ? 'disabled' : preset, transparent, ouline }
+
+  const content = children || <StyledText style={textStyle} tx={tx} text={text} {...styles} />
+
+  return (
+    <StyledTouchable
+      disabled={disabled}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={style}
+      {...styles}
+    >
+      {content}
+    </StyledTouchable>
+  )
+})
